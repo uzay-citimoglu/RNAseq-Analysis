@@ -113,3 +113,13 @@ Rscript counts_and_tests.R
 | `go_enrichment.tsv` | GO enrichment results |
 | `kegg_plots.pdf` | KEGG enrichment plots |
 | `go_plots.pdf` | GO enrichment plots |
+
+---
+
+## File Structure
+- **scripts/**: Contains a Rscript for future usage in statistical analysis.
+- **envsetup.slurm**: Contains the bash code for environment setup.
+- **mainuzay.nf**: The pipeline.
+- **nextflow.config**: Additional setting for the pipeline.
+- **nfrun.slurm**: Contains the code and inputs for running the pipeline.
+- **nfuzay.yml**: Contains needed packages and tools for pipeline.
