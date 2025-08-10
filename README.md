@@ -25,4 +25,37 @@ The workflow is written in Nextflow DSL2 and uses Conda for reproducible environ
 
 ---
 
-## Folder Structure
+## File Guideline
+Run on SLURM (Quick Guide)
+Before you start
+You’re on a SLURM cluster (sbatch works)
+
+Conda/Mamba is available on your PATH
+
+Nextflow is installed (if your pipeline uses it)
+
+Two steps
+1) Set up the environment (run once)
+Installs the Conda environment with all required packages.
+
+bash
+Copy
+Edit
+sbatch envsetup.slurm
+Wait for this job to finish successfully before moving on.
+
+2) Launch a run
+Submit your job with the input files/paths you want to process:
+
+bash
+Copy
+Edit
+sbatch nfrun.slurm <INPUT_1> <INPUT_2> ... <INPUT_N>
+Tips
+You only need to run envsetup.slurm once—run it again if dependencies change.
+
+nfrun.slurm can take one or more inputs (files or directories), depending on your use case.
+
+SLURM writes logs to slurm-<JOBID>.out (and .err if configured).
+
+If the env doesn’t activate in batch jobs, ensure your script loads Conda first (e.g., source ~/.bashrc then conda activate <ENV_NAME>).
