@@ -1,0 +1,24 @@
+name: nfuzay
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base=4.3.3
+  - bioconductor-rsubread
+  - bioconductor-biocparallel
+  - bioconductor-limma
+  - bioconductor-edger
+  - bioconductor-rtracklayer
+  - bioconductor-clusterprofiler
+  - bioconductor-org.hs.eg.db
+  - bioconductor-pathview
+  - r-ggplot2
+  - r-pheatmap
+  - fastqc=0.12.1
+  - openjdk=17
+  - trim-galore=0.6.10
+  - cutadapt=4.9
+  - star=2.7.10a
+  - samtools=1.20
+
