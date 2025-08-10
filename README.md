@@ -26,6 +26,19 @@ The workflow is written in Nextflow DSL2 and uses Conda for reproducible environ
 ---
 
 ## File Guideline
-- Run `envsetup.slurm` in your directory with `sbatch`
-- Conda environment is created now run `nfrun.slurm` with using your data inside the file
-- That's all.
+1. Run `envsetup.slurm` in your directory with `sbatch`
+2. Conda environment is created now run `nfrun.slurm` with using your data inside the file.
+- ## How to run (SLURM)
+
+1) Open `nfrun.slurm` and edit the **four paths** passed to Nextflow:
+
+- `--reads`  → your FASTQ glob (paired reads must match `*_{1,2}.fastq.gz`)
+- `--fasta`  → reference genome FASTA
+- `--gtf`    → annotation GTF
+- `--outdir` → where results will be written
+
+2) Submit the job:
+```bash```
+sbatch nfrun.slurm
+
+3. That's all.
