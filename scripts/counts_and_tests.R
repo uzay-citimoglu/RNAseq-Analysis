@@ -1,10 +1,20 @@
+# --- USER INPUTS (EDIT THESE AS NEEDED) ---------------------------------------
+# BAM paths (aligned, sorted BAMs)  # EDIT
+# GTF path (annotation)             # EDIT
+# Output paths (counts/fpkm TSVs)   # EDIT
+# Threads for featureCounts         # EDIT (nthreads)
+# Condition labels / group factor   # EDIT (group <- factor(...))
+# Filtering thresholds              # EDIT (FPKM > 1 in >= 3 samples; FDR/logFC cutoffs)
+# PCA/plot labeling and colors      # EDIT (sample names, color map)
+# -----------------------------------------------------------------------------
+
 library(Rsubread)
 library(BiocParallel)
 library(limma)
 library(edgeR)
 library(rtracklayer)
 
-bams <- c(
+bams <- c(                                                            # EDIT
   "/archive/binokayl/Uzay/nftest/results_2/Alignment/MV_1.sorted.bam",
   "/archive/binokayl/Uzay/nftest/results_2/Alignment/MV_2.sorted.bam",
   "/archive/binokayl/Uzay/nftest/results_2/Alignment/MV_SORRES_1.sorted.bam",
@@ -13,18 +23,18 @@ bams <- c(
 
 counts <- featureCounts(
   files = bams,
-  annot.ext = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf",
+  annot.ext = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf", # EDIT
   isGTFAnnotationFile = TRUE,
   isPairedEnd = TRUE,
   GTF.featureType = "exon",
   GTF.attrType = "gene_id",
   countMultiMappingReads = TRUE,
-  nthreads = 20
+  nthreads = 20                                                     # EDIT
 )
 
 ## Write count matrix (absolute path as before) + also to CWD for Nextflow *.tsv
 write.table(counts$counts,
-            "/archive/binokayl/Uzay/nftest/results_2/Alignment/counts.tsv",
+            "/archive/binokayl/Uzay/nftest/results_2/Alignment/counts.tsv",  # EDIT
             quote = FALSE, sep = "\t", col.names = NA, row.names = TRUE)
 # ADDED: local copy for NF output matching
 write.table(counts$counts,
@@ -37,7 +47,7 @@ y1 <- calcNormFactors(z1)
 FPKM1 <- rpkm(y1)
 
 write.table(FPKM1,
-            "/archive/binokayl/Uzay/nftest/results_2/Alignment/fpkm_values.tsv",
+            "/archive/binokayl/Uzay/nftest/results_2/Alignment/fpkm_values.tsv",  # EDIT
             quote = FALSE, sep = "\t", col.names = NA, row.names = TRUE)
 # ADDED: local copy for NF output matching
 write.table(FPKM1,
@@ -45,9 +55,9 @@ write.table(FPKM1,
             quote = FALSE, sep = "\t", col.names = NA, row.names = TRUE)
 
 ## Re-load the saved tables with preserved rownames (gene IDs)
-counts <- read.delim("/archive/binokayl/Uzay/nftest/results_2/Alignment/counts.tsv",
+counts <- read.delim("/archive/binokayl/Uzay/nftest/results_2/Alignment/counts.tsv",   # EDIT
                      sep = "\t", row.names = 1, check.names = FALSE)
-fpkm   <- read.delim("/archive/binokayl/Uzay/nftest/results_2/Alignment/fpkm_values.tsv",
+fpkm   <- read.delim("/archive/binokayl/Uzay/nftest/results_2/Alignment/fpkm_values.tsv", # EDIT
                      sep = "\t", row.names = 1, check.names = FALSE)
 
 ## Add GeneId column and strip version suffixes
@@ -55,7 +65,7 @@ counts$GeneId <- sub("\\.\\d+$", "", rownames(counts))
 fpkm$GeneId   <- sub("\\.\\d+$", "", rownames(fpkm))
 
 ## Filter GTF and build annotation table
-gtf <- import("/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf")
+gtf <- import("/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf")  # EDIT
 gtf <- gtf[gtf$type == "gene"]
 gtf <- data.frame(
   seqid     = as.character(seqnames(gtf)),
@@ -71,7 +81,7 @@ annotated_counts <- merge(counts, gtf, by.x = "GeneId", by.y = "gene_id", all.x 
 annotated_fpkm  <- merge(fpkm,   gtf, by.x = "GeneId", by.y = "gene_id", all.x = TRUE)
 
 ## Expression filtering
-fpkm_filt <- annotated_fpkm[ rowSums(annotated_fpkm[, 2:5] > 1) >= 3, ]
+fpkm_filt <- annotated_fpkm[ rowSums(annotated_fpkm[, 2:5] > 1) >= 3, ]     # EDIT thresholds
 counts_filt <- annotated_counts[ annotated_counts$GeneId %in% fpkm_filt$GeneId, ]
 
 ## PCA
@@ -87,7 +97,7 @@ library(ggplot2)
 
 variance   <- pca$sdev^2
 percentVar <- round(variance / sum(variance) * 100, 1)
-pca_df$Sample <- sub("_Aligned\\.sortedByCoord\\.out\\.bam", "", pca_df$Sample)
+pca_df$Sample <- sub("_Aligned\\.sortedByCoord\\.out\\.bam", "", pca_df$Sample)  # EDIT if needed
 
 ggplot(pca_df, aes(x = PC1, y = PC2, label = Sample, color = Sample)) +
   geom_point(size = 3) +
@@ -98,7 +108,7 @@ ggplot(pca_df, aes(x = PC1, y = PC2, label = Sample, color = Sample)) +
     x = paste0("PC1 (", percentVar[1], "%)"),
     y = paste0("PC2 (", percentVar[2], "%)")
   ) +
-  scale_color_manual(values = c(
+  scale_color_manual(values = c(                                   # EDIT color mapping/names
     "MV_1"        = "red",
     "MV_2"        = "red",
     "MV_SORRES_1" = "green",
@@ -107,15 +117,15 @@ ggplot(pca_df, aes(x = PC1, y = PC2, label = Sample, color = Sample)) +
 
 ## Differential expression
 library(edgeR)
-group <- factor(c("MV", "MV", "SORRES", "SORRES"))
+group <- factor(c("MV", "MV", "SORRES", "SORRES"))                 # EDIT groups (order matches BAMs)
 dge <- DGEList(counts = counts_filt[, 2:5], group = group)
 dge <- calcNormFactors(dge)
 dge <- estimateDisp(dge)
 fit <- glmFit(dge)
 lrt <- glmLRT(fit)
 deg_results <- topTags(lrt, n = Inf)$table
-sig_genes <- deg_results[ deg_results$FDR < 0.05 & abs(deg_results$logFC) > 1, ]
-deg_results$significant <- with(deg_results, FDR < 0.05 & abs(logFC) > 1)
+sig_genes <- deg_results[ deg_results$FDR < 0.05 & abs(deg_results$logFC) > 1, ]  # EDIT cutoffs
+deg_results$significant <- with(deg_results, FDR < 0.05 & abs(logFC) > 1)         # EDIT cutoffs
 
 ## TMM normalization & exact test (as you had)
 dge <- calcNormFactors(dge)
@@ -123,13 +133,13 @@ dge <- estimateCommonDisp(dge, verbose = TRUE)
 dge <- estimateTagwiseDisp(dge)
 test <- exactTest(dge)
 deg_results2 <- topTags(test, n = Inf)$table
-deg_results2$significant <- with(deg_results2, FDR < 0.05 & abs(logFC) > 1)
+deg_results2$significant <- with(deg_results2, FDR < 0.05 & abs(logFC) > 1)      # EDIT cutoffs
 
 ## ADDED: write DEG tables locally so NF sees *.tsv
 write.table(deg_results,  "edgeR_glm_DEG.tsv",   sep = "\t", quote = FALSE, row.names = TRUE)
 write.table(deg_results2, "edgeR_exact_DEG.tsv", sep = "\t", quote = FALSE, row.names = TRUE)
 
-## Volcano plots (unchanged plotting; no file device needed for NF)
+## Volcano plots (you can tweak colors/category labels)                   # EDIT colors if desired
 ggplot(deg_results, aes(x = logFC, y = -log10(FDR), color = significant)) +
   geom_point(alpha = 0.6, size = 2) +
   scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "red")) +
@@ -164,14 +174,14 @@ library(clusterProfiler)
 library(enrichplot)
 library(org.Hs.eg.db)
 
-entrez_ids <- unique(rownames(sig_genes))
+entrez_ids <- unique(rownames(sig_genes))                              # EDIT keyType if needed
 
 # KEGG
 kegg_result <- enrichKEGG(gene = entrez_ids, organism = "hsa",
-                          pAdjustMethod = "BH", pvalueCutoff = 0.05)
+                          pAdjustMethod = "BH", pvalueCutoff = 0.05)    # EDIT thresholds
 if (nrow(as.data.frame(kegg_result)) > 0) {
   kegg_result <- enrichplot::pairwise_termsim(kegg_result)
-  pdf("kegg_plots.pdf", width = 10, height = 8)
+  pdf("kegg_plots.pdf", width = 10, height = 8)                         # EDIT filenames if desired
   print(dotplot(kegg_result, showCategory = 20) + ggtitle("KEGG Pathway Enrichment"))
   print(barplot(kegg_result, showCategory = 20))
   try(print(emapplot(kegg_result, showCategory = 20)), silent = TRUE)
@@ -182,11 +192,11 @@ if (nrow(as.data.frame(kegg_result)) > 0) {
 }
 
 # GO
-ego <- enrichGO(gene = entrez_ids, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",
-                ont = "BP", pAdjustMethod = "BH", pvalueCutoff = 0.05)
+ego <- enrichGO(gene = entrez_ids, OrgDb = org.Hs.eg.db, keyType = "ENTREZID", # EDIT keyType if needed
+                ont = "BP", pAdjustMethod = "BH", pvalueCutoff = 0.05)          # EDIT thresholds
 if (nrow(as.data.frame(ego)) > 0) {
   ego <- enrichplot::pairwise_termsim(ego)
-  pdf("go_plots.pdf", width = 10, height = 8)
+  pdf("go_plots.pdf", width = 10, height = 8)                                   # EDIT filenames if desired
   print(dotplot(ego, showCategory = 20) + ggtitle("GO Biological Process Enrichment"))
   print(barplot(ego, showCategory = 20))
   try(print(emapplot(ego, showCategory = 20)), silent = TRUE)
