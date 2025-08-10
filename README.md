@@ -98,3 +98,47 @@ params.reads  = "/archive/binokayl/Uzay/nftest/data/*_{1,2}.fastq.gz"    // EDIT
 params.fasta  = "/archive/binokayl/Gencode/GRCh38.primary_assembly.genome.fa" // EDIT
 params.gtf    = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf" // EDIT
 params.outdir = "/archive/binokayl/Uzay/nftest/results_2"                // EDIT
+```
+---
+
+### 3. R Analysis Script (`counts_and_tests.R`)
+
+This R script performs the downstream RNA-seq analysis after alignment and counting.
+
+#### 📝 User Inputs to Edit
+
+| Section / Variable | Description | Example |
+|--------------------|-------------|---------|
+| `bams <- c(...)` | Paths to sorted BAM files | `/path/to/sample1.sorted.bam` |
+| `annot.ext` in `featureCounts` | Path to GTF annotation | `/refs/gencode.v48.annotation.gtf` |
+| Output file paths | Where counts and FPKM TSVs are written | `/project/results/counts.tsv` |
+| `nthreads` | Number of CPU threads for counting | `20` |
+| `group <- factor(...)` | Experimental groups for DE analysis | `c("Control", "Control", "Treatment", "Treatment")` |
+| Filtering thresholds | Expression cutoffs and DE cutoffs | Adjust as needed |
+| PCA color mapping | Colors assigned to samples in PCA plot | `"Sample1" = "red", "Sample2" = "blue"` |
+
+#### 🔬 Main Analysis Steps
+1. **Counting & FPKM calculation**
+2. **Annotation merge with GTF**
+3. **Filtering low-expression genes**
+4. **PCA plot**
+5. **Differential expression analysis**
+6. **Volcano plots**
+7. **Heatmap**
+8. **KEGG & GO enrichment analysis**
+
+#### ▶️ Running Standalone
+```bash
+Rscript counts_and_tests.R
+```
+#### 📦 Output Files
+| File | Description |
+|------|-------------|
+| `counts.tsv` | Raw gene counts |
+| `fpkm_values.tsv` | FPKM-normalized values |
+| `edgeR_glm_DEG.tsv` | DE results from glmLRT |
+| `edgeR_exact_DEG.tsv` | DE results from exactTest |
+| `kegg_enrichment.tsv` | KEGG enrichment results |
+| `go_enrichment.tsv` | GO enrichment results |
+| `kegg_plots.pdf` | KEGG enrichment plots |
+| `go_plots.pdf` | GO enrichment plots |
