@@ -1,8 +1,15 @@
 #!/usr/bin/env nextflow
-params.reads  = "/archive/binokayl/Uzay/nftest/data/*_{1,2}.fastq.gz"
-params.fasta  = "/archive/binokayl/Gencode/GRCh38.primary_assembly.genome.fa"
-params.gtf    = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf"
-params.outdir = "/archive/binokayl/Uzay/nftest/results_2"
+
+// --- USER INPUTS (EDIT THESE PATHS OR OVERRIDE VIA CLI) ----------------------
+// --reads  : Glob for paired FASTQs (R1/R2), e.g. "/path/to/*_{1,2}.fastq.gz"
+// --fasta  : Reference genome FASTA, e.g. "/refs/GRCh38.primary_assembly.genome.fa"
+// --gtf    : Gene annotation GTF, e.g. "/refs/gencode.v48.primary_assembly.basic.annotation.gtf"
+// --outdir : Output directory for all results, e.g. "/project/results"
+// -----------------------------------------------------------------------------
+params.reads  = "/archive/binokayl/Uzay/nftest/data/*_{1,2}.fastq.gz"    // EDIT
+params.fasta  = "/archive/binokayl/Gencode/GRCh38.primary_assembly.genome.fa" // EDIT
+params.gtf    = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf" // EDIT
+params.outdir = "/archive/binokayl/Uzay/nftest/results_2"                // EDIT
 
 process TrimGalore {
     tag "$sample_id"
@@ -17,6 +24,7 @@ process TrimGalore {
           path("fastqc_before/*_fastqc.*"),
           path("fastqc_after/*_fastqc.*")
     publishDir "${params.outdir}/TrimGalore", mode:'copy'
+
     script:
     """
     mkdir -p fastqc_before fastqc_after trim
@@ -36,12 +44,13 @@ process TrimGalore {
 }
 
 process IndexGenome {
-  input:
+    input:
     tuple path(fasta), path(gtf)
 
     output:
     path "star_index"
     publishDir "${params.outdir}/IndexGenome", mode:'copy'
+
     script:
     """
     mkdir -p star_index
@@ -60,18 +69,18 @@ process AlignReads {
     memory '72 GB'
     cpus 16
 
-input:
-  tuple path(star_index),
-        val(sample_id),
-        path(read1),
-        path(read2),
-        path("fastqc_before/*_fastqc.*"),
-        path("fastqc_after/*_fastqc.*")
-
+    input:
+    tuple path(star_index),
+          val(sample_id),
+          path(read1),
+          path(read2),
+          path("fastqc_before/*_fastqc.*"),
+          path("fastqc_after/*_fastqc.*")
 
     output:
     path "${sample_id}.sorted.bam"
     publishDir "${params.outdir}/Alignment", mode:'copy'
+
     script:
     """
     STAR --runThreadN 4 \
@@ -87,7 +96,7 @@ input:
 
 process RNAseqAnalysis {
     publishDir "${params.outdir}/RNAseqAnalysis", mode: 'copy'
-   
+
     output:
     path "*.tsv"
     path "*.png"
@@ -96,18 +105,15 @@ process RNAseqAnalysis {
 
     script:
     """
-    Rscript /archive/binokayl/Uzay/nftest/counts_and_tests.R
+    Rscript /archive/binokayl/Uzay/nftest/counts_and_tests.R   // EDIT path to R script if needed
     """
 }
 
 workflow {
-
-    reads_ch = Channel.fromFilePairs(params.reads, checkIfExists: true)
-
-    fasta_ch = Channel.value(params.fasta)
-    gtf_ch   = Channel.value(params.gtf)
-
-    fasta_gtf_ch = Channel.of([file(params.fasta), file(params.gtf)])
+    reads_ch      = Channel.fromFilePairs(params.reads, checkIfExists: true)
+    fasta_ch      = Channel.value(params.fasta)
+    gtf_ch        = Channel.value(params.gtf)
+    fasta_gtf_ch  = Channel.of([file(params.fasta), file(params.gtf)])
 
     trimmed_reads_ch = reads_ch | TrimGalore
     indexed_ch       = fasta_gtf_ch | IndexGenome
@@ -116,4 +122,3 @@ workflow {
 
     RNAseqAnalysis()
 }
-
