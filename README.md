@@ -76,7 +76,7 @@ nextflow run mainuzay.nf \
   --outdir "/project/results" \                   # EDIT
   -with-report "/project/results/summary_$(date +%F_%H-%M-%S).html" \
   -resume
-
+```
 ---
 
 ## 2. Nextflow Script (`mainuzay.nf`)
