@@ -25,14 +25,6 @@ The workflow is written in Nextflow DSL2 and uses Conda for reproducible environ
 
 ---
 
-## File Guideline
-
-To use this Nextflow pipeline you must first run the `envsetup.slurm`.  
-After this, your Conda environment will set up all necessary packages.  
-Then run `nfrun.slurm` with your desired file names, and you are good to go!
-
----
-
 ## Running the Pipeline
 
 ### 1. Edit `nfrun.slurm`
