@@ -1,6 +1,6 @@
 # RNA-seq Analysis Pipeline (Nextflow)
 
-This repository contains an RNA-seq analysis pipeline I developed using [Nextflow](https://www.nextflow.io/). It takes paired-end FASTQ files as input and processes them through quality control, trimming, alignment, and statistical analysis.
+This repository contains a RNA-seq analysis pipeline I developed using [Nextflow](https://www.nextflow.io/). It takes paired-end FASTQ files as input and processes them through quality control, trimming, alignment, and statistical analysis.
 
 I created this as part of a project to better understand RNA-seq data analysis and workflow management with Nextflow. This can be used as a base or educational reference for similar projects.
 
