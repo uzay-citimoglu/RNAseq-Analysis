@@ -41,7 +41,7 @@ Then run `nfrun.slurm` with your desired file names, and you are good to go!
 
 ---
 
-## 📋 Parameters You Must Set
+## Parameters You Must Set
 
 The pipeline has **four required parameters** that must be set before running.
 
@@ -54,7 +54,7 @@ The pipeline has **four required parameters** that must be set before running.
 
 ---
 
-## 🚀 Running the Pipeline
+## Running the Pipeline
 
 ### 1. Edit `nfrun.slurm`
 Open the file and update the four parameters in the `nextflow run` command.
