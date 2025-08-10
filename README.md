@@ -76,3 +76,25 @@ nextflow run mainuzay.nf \
   --outdir "/project/results" \                   # EDIT
   -with-report "/project/results/summary_$(date +%F_%H-%M-%S).html" \
   -resume
+
+---
+
+## 2. Nextflow Script (`mainuzay.nf`)
+
+The Nextflow workflow defines the full RNA-seq analysis process.  
+You must provide the same **four required parameters** (`--reads`, `--fasta`, `--gtf`, `--outdir`) either:
+
+- In the SLURM script (`nfrun.slurm`)
+- Or directly on the Nextflow CLI
+
+---
+
+### Parameters in the Script
+These are the defaults inside `mainuzay.nf` — you can edit them here **or** override via CLI.
+
+```groovy
+// --- USER INPUTS (EDIT THESE PATHS OR OVERRIDE VIA CLI) ---
+params.reads  = "/archive/binokayl/Uzay/nftest/data/*_{1,2}.fastq.gz"    // EDIT
+params.fasta  = "/archive/binokayl/Gencode/GRCh38.primary_assembly.genome.fa" // EDIT
+params.gtf    = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf" // EDIT
+params.outdir = "/archive/binokayl/Uzay/nftest/results_2"                // EDIT
