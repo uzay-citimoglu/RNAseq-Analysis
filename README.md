@@ -33,19 +33,6 @@ Then run `nfrun.slurm` with your desired file names, and you are good to go!
 
 ---
 
-## Parameters You Must Set
-
-The pipeline has **four required parameters** that must be set before running.
-
-| Parameter    | Description                                               | Where to Set                                         | Example                                                     |
-|--------------|-----------------------------------------------------------|------------------------------------------------------|-------------------------------------------------------------|
-| `--reads`    | Glob pattern for paired FASTQ files (`R1`/`R2`)            | `nfrun.slurm` or CLI when running Nextflow           | `/data/fastq/*_{1,2}.fastq.gz`                              |
-| `--fasta`    | Reference genome FASTA                                     | `nfrun.slurm` or CLI when running Nextflow           | `/refs/GRCh38.primary_assembly.genome.fa`                   |
-| `--gtf`      | Gene annotation GTF file                                   | `nfrun.slurm` or CLI when running Nextflow           | `/refs/gencode.v48.primary_assembly.basic.annotation.gtf`   |
-| `--outdir`   | Output directory for all pipeline results                  | `nfrun.slurm` or CLI when running Nextflow           | `/project/results`                                          |
-
----
-
 ## Running the Pipeline
 
 ### 1. Edit `nfrun.slurm`
