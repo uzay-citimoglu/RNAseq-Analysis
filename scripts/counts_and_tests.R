@@ -114,6 +114,7 @@ ggplot(pca_df, aes(x = PC1, y = PC2, label = Sample, color = Sample)) +
     "MV_SORRES_1" = "green",
     "MV_SORRES_2" = "green"
   ))
+ggsave("pca.png", width = 8, height = 6, dpi = 300)   # ADDED
 
 ## Differential expression
 library(edgeR)
@@ -150,6 +151,7 @@ ggplot(deg_results, aes(x = logFC, y = -log10(FDR), color = significant)) +
     y = "-log10 FDR",
     color = "Significant"
   )
+ggsave("volcano_glm.png", width = 8, height = 6, dpi = 300)        # ADDED
 
 ggplot(deg_results2, aes(x = logFC, y = -log10(FDR), color = significant)) +
   geom_point(alpha = 0.6, size = 2) +
@@ -161,13 +163,19 @@ ggplot(deg_results2, aes(x = logFC, y = -log10(FDR), color = significant)) +
     y = "-log10 FDR",
     color = "Significant"
   )
+ggsave("volcano_exact.png", width = 8, height = 6, dpi = 300)      # ADDED
 
 ## Heatmap
 library(pheatmap)
 logcpm <- cpm(dge, log = TRUE)
 sig_logcpm <- logcpm[ rownames(logcpm) %in% rownames(sig_genes), ]
 scaled_matrix <- t(scale(t(sig_logcpm)))
-pheatmap(scaled_matrix, cluster_rows = TRUE, cluster_cols = TRUE, show_rownames = FALSE)
+pheatmap(scaled_matrix,                                         # EDIT: save PNG
+         cluster_rows = TRUE,
+         cluster_cols = TRUE,
+         show_rownames = FALSE,
+         filename = "heatmap.png",
+         width = 8, height = 10)
 
 ## KEGG and GO analysis (with pairwise_termsim + local TSVs)
 library(clusterProfiler)
@@ -186,6 +194,15 @@ if (nrow(as.data.frame(kegg_result)) > 0) {
   print(barplot(kegg_result, showCategory = 20))
   try(print(emapplot(kegg_result, showCategory = 20)), silent = TRUE)
   dev.off()
+  # ADDED PNG saves without altering existing prints
+  ggsave("kegg_dot.png", dotplot(kegg_result, showCategory = 20) + ggtitle("KEGG Pathway Enrichment"),
+         width = 8, height = 6, dpi = 300)
+  ggsave("kegg_bar.png", barplot(kegg_result, showCategory = 20),
+         width = 8, height = 6, dpi = 300)
+  tmp_kegg_emap <- try(emapplot(kegg_result, showCategory = 20), silent = TRUE)
+  if (!inherits(tmp_kegg_emap, "try-error"))
+    ggsave("kegg_emap.png", tmp_kegg_emap, width = 10, height = 8, dpi = 300)
+
   ## ADDED: write enrichment table
   write.table(as.data.frame(kegg_result), "kegg_enrichment.tsv",
               sep = "\t", quote = FALSE, row.names = FALSE)
@@ -201,6 +218,15 @@ if (nrow(as.data.frame(ego)) > 0) {
   print(barplot(ego, showCategory = 20))
   try(print(emapplot(ego, showCategory = 20)), silent = TRUE)
   dev.off()
+  # ADDED PNG saves without altering existing prints
+  ggsave("go_dot.png", dotplot(ego, showCategory = 20) + ggtitle("GO Biological Process Enrichment"),
+         width = 8, height = 6, dpi = 300)
+  ggsave("go_bar.png", barplot(ego, showCategory = 20),
+         width = 8, height = 6, dpi = 300)
+  tmp_go_emap <- try(emapplot(ego, showCategory = 20), silent = TRUE)
+  if (!inherits(tmp_go_emap, "try-error"))
+    ggsave("go_emap.png", tmp_go_emap, width = 10, height = 8, dpi = 300)
+
   ## ADDED: write enrichment table
   write.table(as.data.frame(ego), "go_enrichment.tsv",
               sep = "\t", quote = FALSE, row.names = FALSE)
