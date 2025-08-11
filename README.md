@@ -25,6 +25,40 @@ The workflow is written in Nextflow DSL2 and uses Conda for reproducible environ
 
 ---
 
+## Installation
+
+Before running the pipeline:
+
+1. **Download the Repository**
+```bash
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
+```
+2. **Install Nextflow & Conda**  
+Follow the [Nextflow installation guide](https://www.nextflow.io/docs/latest/getstarted.html):
+```bash
+curl -s https://get.nextflow.io | bash
+mv nextflow ~/bin/   # or another directory in your PATH
+```
+If you don't have Conda, install [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
+```bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+```
+3. **Set Up the Conda Environment**  
+Edit `envsetup.slurm` and update the `.yml` file path. Then run:
+```bash
+sbatch envsetup.slurm
+# or
+bash envsetup.slurm
+```
+4. **Prepare Input Files**  
+- Paired-end FASTQs (`*_1.fastq.gz`, `*_2.fastq.gz`) they need to be in this format
+- Reference genome FASTA  
+- Annotation GTF  
+
+---
+
 ## Running the Pipeline
 
 ### 1. Edit `nfrun.slurm`
