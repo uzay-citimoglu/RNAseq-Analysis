@@ -76,7 +76,7 @@ params.outdir = "/PATH/TO/OUTPUT/DIRECTORY"                                  // 
 
 This R script performs the downstream RNA-seq analysis after alignment and counting.
 
-#### 📝 User Inputs to Edit
+#### User Inputs to Edit
 
 | Section / Variable | Description | Example |
 |--------------------|-------------|---------|
@@ -88,7 +88,7 @@ This R script performs the downstream RNA-seq analysis after alignment and count
 | Filtering thresholds | Expression cutoffs and DE cutoffs | Adjust as needed |
 | PCA color mapping | Colors assigned to samples in PCA plot | `"Sample1" = "red", "Sample2" = "blue"` |
 
-#### 🔬 Main Analysis Steps
+#### Main Analysis Steps
 1. **Counting & FPKM calculation**
 2. **Annotation merge with GTF**
 3. **Filtering low-expression genes**
@@ -98,11 +98,7 @@ This R script performs the downstream RNA-seq analysis after alignment and count
 7. **Heatmap**
 8. **KEGG & GO enrichment analysis**
 
-#### ▶️ Running Standalone
-```bash
-Rscript counts_and_tests.R
-```
-#### 📦 Output Files
+####  Output Files
 | File | Description |
 |------|-------------|
 | `counts.tsv` | Raw gene counts |
