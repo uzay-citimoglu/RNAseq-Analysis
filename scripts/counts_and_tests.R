@@ -15,15 +15,15 @@ library(edgeR)
 library(rtracklayer)
 
 bams <- c(                                                            # EDIT
-  "/archive/binokayl/Uzay/nftest/results_2/Alignment/MV_1.sorted.bam",
-  "/archive/binokayl/Uzay/nftest/results_2/Alignment/MV_2.sorted.bam",
-  "/archive/binokayl/Uzay/nftest/results_2/Alignment/MV_SORRES_1.sorted.bam",
-  "/archive/binokayl/Uzay/nftest/results_2/Alignment/MV_SORRES_2.sorted.bam"
+  "/PATH/TO/Alignment/yourdata_1.sorted.bam",
+  "/PATH/TO/Alignment/yourdata_2.sorted.bam",
+  "/PATH/TO/Alignment/yourdata2_1.sorted.bam",
+  "/PATH/TO/Alignment/yourdata2_2.sorted.bam"
 )
 
 counts <- featureCounts(
   files = bams,
-  annot.ext = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf", # EDIT
+  annot.ext = "/PATH/TO/ANNOTATION/gencode.v48.primary_assembly.basic.annotation.gtf", # EDIT
   isGTFAnnotationFile = TRUE,
   isPairedEnd = TRUE,
   GTF.featureType = "exon",
@@ -32,40 +32,31 @@ counts <- featureCounts(
   nthreads = 20                                                     # EDIT
 )
 
-## Write count matrix (absolute path as before) + also to CWD for Nextflow *.tsv
 write.table(counts$counts,
-            "/archive/binokayl/Uzay/nftest/results_2/Alignment/counts.tsv",  # EDIT
+            "/PATH/TO/Alignment/counts.tsv",  # EDIT
             quote = FALSE, sep = "\t", col.names = NA, row.names = TRUE)
-# ADDED: local copy for NF output matching
-write.table(counts$counts,
-            "counts.tsv",
+write.table(counts$counts, "counts.tsv",
             quote = FALSE, sep = "\t", col.names = NA, row.names = TRUE)
 
-## Calculate FPKM and write (absolute + local)
 z1 <- DGEList(counts = counts$counts, genes = counts$annotation[, c("GeneID","Length")])
 y1 <- calcNormFactors(z1)
 FPKM1 <- rpkm(y1)
 
 write.table(FPKM1,
-            "/archive/binokayl/Uzay/nftest/results_2/Alignment/fpkm_values.tsv",  # EDIT
+            "/PATH/TO/Alignment/fpkm_values.tsv",  # EDIT
             quote = FALSE, sep = "\t", col.names = NA, row.names = TRUE)
-# ADDED: local copy for NF output matching
-write.table(FPKM1,
-            "fpkm_values.tsv",
+write.table(FPKM1, "fpkm_values.tsv",
             quote = FALSE, sep = "\t", col.names = NA, row.names = TRUE)
 
-## Re-load the saved tables with preserved rownames (gene IDs)
-counts <- read.delim("/archive/binokayl/Uzay/nftest/results_2/Alignment/counts.tsv",   # EDIT
+counts <- read.delim("/PATH/TO/Alignment/counts.tsv",   # EDIT
                      sep = "\t", row.names = 1, check.names = FALSE)
-fpkm   <- read.delim("/archive/binokayl/Uzay/nftest/results_2/Alignment/fpkm_values.tsv", # EDIT
+fpkm   <- read.delim("/PATH/TO/Alignment/fpkm_values.tsv", # EDIT
                      sep = "\t", row.names = 1, check.names = FALSE)
 
-## Add GeneId column and strip version suffixes
 counts$GeneId <- sub("\\.\\d+$", "", rownames(counts))
 fpkm$GeneId   <- sub("\\.\\d+$", "", rownames(fpkm))
 
-## Filter GTF and build annotation table
-gtf <- import("/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf")  # EDIT
+gtf <- import("/PATH/TO/ANNOTATION/gencode.v48.primary_assembly.basic.annotation.gtf")  # EDIT
 gtf <- gtf[gtf$type == "gene"]
 gtf <- data.frame(
   seqid     = as.character(seqnames(gtf)),
@@ -76,28 +67,23 @@ gtf <- data.frame(
 )
 gtf$gene_id <- sub("\\.\\d+$", "", gtf$gene_id)
 
-## Merge annotations
 annotated_counts <- merge(counts, gtf, by.x = "GeneId", by.y = "gene_id", all.x = TRUE)
 annotated_fpkm  <- merge(fpkm,   gtf, by.x = "GeneId", by.y = "gene_id", all.x = TRUE)
 
-## Expression filtering
 fpkm_filt <- annotated_fpkm[ rowSums(annotated_fpkm[, 2:5] > 1) >= 3, ]     # EDIT thresholds
 counts_filt <- annotated_counts[ annotated_counts$GeneId %in% fpkm_filt$GeneId, ]
 
-## PCA
 countsnum  <- as.matrix(counts_filt[, 2:5])
 logcounts  <- log2(countsnum + 1)
 logcounts  <- logcounts[ apply(logcounts, 1, function(x) var(x) > 0), ]
 pca        <- prcomp(t(logcounts), scale. = TRUE)
 pca_df     <- data.frame(pca$x[, 1:2])
 pca_df$Sample <- colnames(logcounts)
-pca_df$Source <- "PCA"
 
 library(ggplot2)
-
 variance   <- pca$sdev^2
 percentVar <- round(variance / sum(variance) * 100, 1)
-pca_df$Sample <- sub("_Aligned\\.sortedByCoord\\.out\\.bam", "", pca_df$Sample)  # EDIT if needed
+pca_df$Sample <- sub("_Aligned\\.sortedByCoord\\.out\\.bam", "", pca_df$Sample)
 
 ggplot(pca_df, aes(x = PC1, y = PC2, label = Sample, color = Sample)) +
   geom_point(size = 3) +
@@ -108,17 +94,17 @@ ggplot(pca_df, aes(x = PC1, y = PC2, label = Sample, color = Sample)) +
     x = paste0("PC1 (", percentVar[1], "%)"),
     y = paste0("PC2 (", percentVar[2], "%)")
   ) +
-  scale_color_manual(values = c(                                   # EDIT color mapping/names
+  scale_color_manual(values = c(                                   # EDIT
     "MV_1"        = "red",
     "MV_2"        = "red",
     "MV_SORRES_1" = "green",
     "MV_SORRES_2" = "green"
   ))
-ggsave("pca.png", width = 8, height = 6, dpi = 300)   # ADDED
+ggsave("pca.png", width = 8, height = 6, dpi = 300)
 
 ## Differential expression
 library(edgeR)
-group <- factor(c("MV", "MV", "SORRES", "SORRES"))                 # EDIT groups (order matches BAMs)
+group <- factor(c("yourdata", "yourdata", "yourdata2", "yourdata2"))                 # EDIT groups (order matches BAMs)
 dge <- DGEList(counts = counts_filt[, 2:5], group = group)
 dge <- calcNormFactors(dge)
 dge <- estimateDisp(dge)
@@ -128,7 +114,7 @@ deg_results <- topTags(lrt, n = Inf)$table
 sig_genes <- deg_results[ deg_results$FDR < 0.05 & abs(deg_results$logFC) > 1, ]  # EDIT cutoffs
 deg_results$significant <- with(deg_results, FDR < 0.05 & abs(logFC) > 1)         # EDIT cutoffs
 
-## TMM normalization & exact test (as you had)
+## TMM normalization & exact test
 dge <- calcNormFactors(dge)
 dge <- estimateCommonDisp(dge, verbose = TRUE)
 dge <- estimateTagwiseDisp(dge)
@@ -136,14 +122,14 @@ test <- exactTest(dge)
 deg_results2 <- topTags(test, n = Inf)$table
 deg_results2$significant <- with(deg_results2, FDR < 0.05 & abs(logFC) > 1)      # EDIT cutoffs
 
-## ADDED: write DEG tables locally so NF sees *.tsv
+## Save DEG tables
 write.table(deg_results,  "edgeR_glm_DEG.tsv",   sep = "\t", quote = FALSE, row.names = TRUE)
 write.table(deg_results2, "edgeR_exact_DEG.tsv", sep = "\t", quote = FALSE, row.names = TRUE)
 
-## Volcano plots (you can tweak colors/category labels)                   # EDIT colors if desired
+## Volcano plots
 ggplot(deg_results, aes(x = logFC, y = -log10(FDR), color = significant)) +
   geom_point(alpha = 0.6, size = 2) +
-  scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "red")) +
+  scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "red")) +             # EDIT colors
   theme_minimal() +
   labs(
     title = "Volcano Plot of Differentially Expressed Genes",
@@ -151,11 +137,11 @@ ggplot(deg_results, aes(x = logFC, y = -log10(FDR), color = significant)) +
     y = "-log10 FDR",
     color = "Significant"
   )
-ggsave("volcano_glm.png", width = 8, height = 6, dpi = 300)        # ADDED
+ggsave("volcano_glm.png", width = 8, height = 6, dpi = 300)
 
 ggplot(deg_results2, aes(x = logFC, y = -log10(FDR), color = significant)) +
   geom_point(alpha = 0.6, size = 2) +
-  scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "green")) +
+  scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "green")) +           # EDIT colors
   theme_minimal() +
   labs(
     title = "Volcano Plot of Differentially Expressed Genes",
@@ -163,21 +149,21 @@ ggplot(deg_results2, aes(x = logFC, y = -log10(FDR), color = significant)) +
     y = "-log10 FDR",
     color = "Significant"
   )
-ggsave("volcano_exact.png", width = 8, height = 6, dpi = 300)      # ADDED
+ggsave("volcano_exact.png", width = 8, height = 6, dpi = 300)
 
 ## Heatmap
 library(pheatmap)
 logcpm <- cpm(dge, log = TRUE)
 sig_logcpm <- logcpm[ rownames(logcpm) %in% rownames(sig_genes), ]
 scaled_matrix <- t(scale(t(sig_logcpm)))
-pheatmap(scaled_matrix,                                         # EDIT: save PNG
+pheatmap(scaled_matrix,
          cluster_rows = TRUE,
          cluster_cols = TRUE,
          show_rownames = FALSE,
          filename = "heatmap.png",
          width = 8, height = 10)
 
-## KEGG and GO analysis (with pairwise_termsim + local TSVs)
+## KEGG and GO analysis
 library(clusterProfiler)
 library(enrichplot)
 library(org.Hs.eg.db)
@@ -194,7 +180,6 @@ if (nrow(as.data.frame(kegg_result)) > 0) {
   print(barplot(kegg_result, showCategory = 20))
   try(print(emapplot(kegg_result, showCategory = 20)), silent = TRUE)
   dev.off()
-  # ADDED PNG saves without altering existing prints
   ggsave("kegg_dot.png", dotplot(kegg_result, showCategory = 20) + ggtitle("KEGG Pathway Enrichment"),
          width = 8, height = 6, dpi = 300)
   ggsave("kegg_bar.png", barplot(kegg_result, showCategory = 20),
@@ -203,7 +188,6 @@ if (nrow(as.data.frame(kegg_result)) > 0) {
   if (!inherits(tmp_kegg_emap, "try-error"))
     ggsave("kegg_emap.png", tmp_kegg_emap, width = 10, height = 8, dpi = 300)
 
-  ## ADDED: write enrichment table
   write.table(as.data.frame(kegg_result), "kegg_enrichment.tsv",
               sep = "\t", quote = FALSE, row.names = FALSE)
 }
@@ -218,7 +202,6 @@ if (nrow(as.data.frame(ego)) > 0) {
   print(barplot(ego, showCategory = 20))
   try(print(emapplot(ego, showCategory = 20)), silent = TRUE)
   dev.off()
-  # ADDED PNG saves without altering existing prints
   ggsave("go_dot.png", dotplot(ego, showCategory = 20) + ggtitle("GO Biological Process Enrichment"),
          width = 8, height = 6, dpi = 300)
   ggsave("go_bar.png", barplot(ego, showCategory = 20),
@@ -227,7 +210,6 @@ if (nrow(as.data.frame(ego)) > 0) {
   if (!inherits(tmp_go_emap, "try-error"))
     ggsave("go_emap.png", tmp_go_emap, width = 10, height = 8, dpi = 300)
 
-  ## ADDED: write enrichment table
   write.table(as.data.frame(ego), "go_enrichment.tsv",
               sep = "\t", quote = FALSE, row.names = FALSE)
 }
