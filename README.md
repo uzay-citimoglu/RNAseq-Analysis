@@ -37,15 +37,15 @@ Open the file and update the four parameters in the `nextflow run` command.
 #SBATCH --error=testnf_%j.err
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=72G
-#SBATCH -p boyoz
+#SBATCH -p your_partition_name       # EDIT
 
 # --- USER INPUTS (EDIT BELOW) ---
 nextflow run mainuzay.nf \
-  --reads "/data/fastq/*_{1,2}.fastq.gz" \        # EDIT
-  --fasta "/refs/GRCh38.primary_assembly.genome.fa" \    # EDIT
-  --gtf "/refs/gencode.v48.primary_assembly.basic.annotation.gtf" \ # EDIT
-  --outdir "/project/results" \                   # EDIT
-  -with-report "/project/results/summary_$(date +%F_%H-%M-%S).html" \
+  --reads "/PATH/TO/FASTQ/*_{1,2}.fastq.gz" \                               # EDIT
+  --fasta "/PATH/TO/REFERENCE/GENOME.fa" \                                  # EDIT
+  --gtf "/PATH/TO/ANNOTATION/GENCODE.gtf" \                                 # EDIT
+  --outdir "/PATH/TO/OUTPUT/DIRECTORY" \                                    # EDIT
+  -with-report "/PATH/TO/OUTPUT/DIRECTORY/summary_$(date +%F_%H-%M-%S).html" \
   -resume
 ```
 ---
