@@ -50,7 +50,7 @@ nextflow run mainuzay.nf \
 ```
 ---
 
-## 2. Nextflow Script (`mainuzay.nf`)
+### 2. Nextflow Script (`mainuzay.nf`)
 
 The Nextflow workflow defines the full RNA-seq analysis process.  
 You must provide the same **four required parameters** (`--reads`, `--fasta`, `--gtf`, `--outdir`) either:
