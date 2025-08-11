@@ -96,7 +96,6 @@ process RNAseqAnalysis {
     path "*.tsv"
     path "*.png"
     path "*.pdf"
-    path "*.csv"
 
     script:
     """
