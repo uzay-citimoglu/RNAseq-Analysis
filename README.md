@@ -32,7 +32,7 @@ Before running the pipeline:
 1. **Download the Repository**
 ```bash
 git clone https://github.com/uzay-citimoglu/RNAseq-Analysis.git
-cd <your-repo>
+cd RNAseq-Analysis
 ```
 2. **Install Nextflow & Conda**  
 Follow the [Nextflow installation guide](https://www.nextflow.io/docs/latest/getstarted.html):
