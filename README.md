@@ -25,7 +25,7 @@ The workflow is written in Nextflow DSL2 and uses Conda for reproducible environ
 
 ---
 
-## Installation
+## Installation and Setup
 
 Before running the pipeline:
 
