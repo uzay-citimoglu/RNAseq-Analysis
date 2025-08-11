@@ -1,15 +1,10 @@
 #!/usr/bin/env nextflow
 
-// --- USER INPUTS (EDIT THESE PATHS OR OVERRIDE VIA CLI) ----------------------
-// --reads  : Glob for paired FASTQs (R1/R2), e.g. "/path/to/*_{1,2}.fastq.gz"
-// --fasta  : Reference genome FASTA, e.g. "/refs/GRCh38.primary_assembly.genome.fa"
-// --gtf    : Gene annotation GTF, e.g. "/refs/gencode.v48.primary_assembly.basic.annotation.gtf"
-// --outdir : Output directory for all results, e.g. "/project/results"
-// -----------------------------------------------------------------------------
-params.reads  = "/archive/binokayl/Uzay/nftest/data/*_{1,2}.fastq.gz"    // EDIT
-params.fasta  = "/archive/binokayl/Gencode/GRCh38.primary_assembly.genome.fa" // EDIT
-params.gtf    = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf" // EDIT
-params.outdir = "/archive/binokayl/Uzay/nftest/results_2"                // EDIT
+// --- USER INPUTS (EDIT THESE PATHS OR OVERRIDE VIA CLI) ---
+params.reads  = "/PATH/TO/FASTQ/*_{1,2}.fastq.gz"                            // EDIT
+params.fasta  = "/PATH/TO/REFERENCE/GENOME.fa"                               // EDIT
+params.gtf    = "/PATH/TO/ANNOTATION/GENCODE.gtf"                            // EDIT
+params.outdir = "/PATH/TO/OUTPUT/DIRECTORY"                                  // EDIT
 
 process TrimGalore {
     tag "$sample_id"
@@ -105,7 +100,7 @@ process RNAseqAnalysis {
 
     script:
     """
-    Rscript /archive/binokayl/Uzay/nftest/counts_and_tests.R   // EDIT path to R script if needed
+    Rscript /PATH/TO/R_SCRIPT/counts_and_tests.R   # EDIT
     """
 }
 
