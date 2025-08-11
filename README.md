@@ -65,10 +65,10 @@ These are the defaults inside `mainuzay.nf` — you can edit them here **or** ov
 
 ```groovy
 // --- USER INPUTS (EDIT THESE PATHS OR OVERRIDE VIA CLI) ---
-params.reads  = "/archive/binokayl/Uzay/nftest/data/*_{1,2}.fastq.gz"    // EDIT
-params.fasta  = "/archive/binokayl/Gencode/GRCh38.primary_assembly.genome.fa" // EDIT
-params.gtf    = "/archive/binokayl/Gencode/gencode.v48.primary_assembly.basic.annotation.gtf" // EDIT
-params.outdir = "/archive/binokayl/Uzay/nftest/results_2"                // EDIT
+params.reads  = "/PATH/TO/FASTQ/*_{1,2}.fastq.gz"                            // EDIT
+params.fasta  = "/PATH/TO/REFERENCE/GENOME.fa"                               // EDIT
+params.gtf    = "/PATH/TO/ANNOTATION/GENCODE.gtf"                            // EDIT
+params.outdir = "/PATH/TO/OUTPUT/DIRECTORY"                                  // EDIT
 ```
 ---
 
